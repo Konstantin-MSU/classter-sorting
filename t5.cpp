@@ -40,16 +40,19 @@ float Sdis(Tpair a, Tpair b) {
 int main() {
 	// 212-Sushchev-classes of points
 	std::ifstream file("cone-points.txt"); // читаем файл с точками
+	std::ofstream output("clusters.txt");
+
 
 	std::vector<std::vector<Tpair>> Classeters;
 	std::vector <Tpair> points;
 	std::vector <Tpair> gr;
+	std::vector <float> ribs;
 
 	float x, y;
-	int N = 0;
+	int N = 0, M = 0;
 
 
-	if (!file.is_open()) {
+	if ((!file.is_open()) || (!output.is_open())) {
 		std::cout << "Error, file is not found" << std::endl;
 		return -1;
 	}
@@ -67,6 +70,7 @@ int main() {
 	Tpair Ai = points[0];
 	Tpair Bj = points[0];
 	gr.push_back(Ai);
+	ribs.push_back(0.0);
 	
 	for (w; w < N; w++) {
 		Tpair Closest = points[N-1];
@@ -82,10 +86,45 @@ int main() {
 				if (d < D) { D = d; }// считаем удаленность от графа
 			}
 			points[i].setD(D);
-			if ((D < Closest.getD()) && D!=0) { Closest = points[i]; }
+			if ((D < Closest.getD()) && D > 0.001) { Closest = points[i]; }
 		}
 		gr.push_back(Closest);
+		ribs.push_back(Closest.getD());
 	}
+	// так мы получили граф, с наиболее короткими ребрами. Далее удаляяем M самых длинных ребер.
+	std::cout << "Enter wanted number of clasters: ";
+	std::cin >> M;
+	if (M < 2) {
+		output.close();
+		std::cout << "Wrong value, it should be greater then 1";
+		return -1;
+	}
+	std::sort(ribs.begin(), ribs.end(), std::greater<float>());
+
+	D = ribs[M - 2];
+	j = 0;
+	i = 0;
+
+	output << "Clusters:\n";
+
+	for (i; i < M; i++) {
+		output << i+1 << "\n";
+		std::vector<Tpair> cl;
+
+		if (j == N) {break;}
+		
+		cl.push_back(gr[j]);
+		output << "(" << gr[j].getX() << ";  " << gr[j].getY() << ")" << "\n";
+		j++;
+		while ((j < N) && (gr[j].getD() < D)) {
+			cl.push_back(gr[j]);			
+			output << "(" << gr[j].getX() << ";  " << gr[j].getY() << ")" << "\n";
+			j++;
+		}
+		Classeters.push_back(cl);
+		output << "\n";
+	}
+	output.close();
 
 	return 0;
 }
