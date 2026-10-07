@@ -7,7 +7,7 @@ class Tpair {
 private:
 	float x;
 	float y; // координаты
-	float d = 100000; // удаленность от центра графа
+	float d = 100000; // удаленность от графа
 public:
 	Tpair(float a, float b) : x(a), y(b) {}
 
